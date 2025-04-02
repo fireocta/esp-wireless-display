@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Digital Notice Board</title>
+
+    <!-- Firebase SDK -->
+    <script defer src="/__/firebase/11.6.0/firebase-app-compat.js"></script>
+    <script defer src="/__/firebase/11.6.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <link rel="stylesheet" href="styles/styles.css">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="notice-form">
+        <div class="form-header">
+          <h2>Digital Notice Board</h2>
+          <p class="subtitle">Post announcements to your display</p>
+        </div>
+        <div class="form-content">
+          <div class="input-group">
+            <label for="title">Notice</label>
+            <input type="text" id="title" placeholder="Enter your notice...">
+          </div>
+          <button onclick="sendNotice()">
+            <span class="button-text">Send Notice</span>
+            <span class="button-icon">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        let database;
+
+        try {
+          const app = firebase.app();
+          database = firebase.database();
+        } catch (e) {
+          console.error(e);
+          alert('Error loading Firebase SDK');
+        }
+
+        window.sendNotice = function() {
+          const title = document.getElementById('title').value;
+          
+          if (!title) {
+            alert('Please enter a notice');
+            return;
+          }
+
+          const newNotice = {
+            title: title,
+            timestamp: Date.now()
+          };
+
+          database.ref('notices/current').set(newNotice)
+            .then(() => {
+              document.getElementById('title').value = '';
+              showSuccessMessage();
+            })
+            .catch((error) => {
+              console.error(error);
+              alert('Error sending notice');
+            });
+        }
+
+        function showSuccessMessage() {
+          const button = document.querySelector('button');
+          const originalContent = button.innerHTML;
+          button.innerHTML = '<span class="button-text">Sent Successfully!</span> ✓';
+          button.classList.add('success');
+          
+          setTimeout(() => {
+            button.innerHTML = originalContent;
+            button.classList.remove('success');
+          }, 2000);
+        }
+      });
+    </script>
+  </body>
+</html>
